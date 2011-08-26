@@ -6,8 +6,20 @@
 
 (defn namespace-to-source [ns]
   "Converts the namespace object to a source (.clj) file path."
-  (let [tokens (-> *ns* ns-name str (.split "\\."))]
-    (str (apply str (interpose "/" (map munge tokens))) ".clj")))
+  (when-let [name (try (-> ns ns-name str) (catch Exception e))]
+    (let [tokens (.split name "\\.")]
+      (str (apply str (interpose "/" (map munge tokens))) ".clj"))))
+
+(defn find-uncle-file [f uncle]
+  "Finds an ancestor directory of file f containing a file uncle."
+  (let [f (if (string? f) (File. f) f)
+        uncle (if (string? uncle) uncle (.getPath uncle))
+        d0 (if (.isDirectory f) f (.getParentFile f))]
+    (loop [dir d0]
+      (when dir
+        (if (.exists (File. dir uncle))
+          (.getAbsolutePath dir)
+          (recur (.getParentFile dir)))))))
 
 (defn project-dir
   "Returns the absolute file path of the parent of the src directory
@@ -23,7 +35,7 @@
   ([]
     (or (project-dir *file*)
         (project-dir (namespace-to-source *ns*))
-        (.getAbsolutePath (File. ".")))))
+        (find-uncle-file (File. ".") "project.clj"))))
 
 (defn slurp* [f & opts]
   (apply slurp (File. (project-dir) f) opts))
