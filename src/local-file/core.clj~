@@ -1,0 +1,16 @@
+
+ Welcome to clooj, a lightweight IDE for clojure
+
+     To start coding, you can either
+
+       a. create a new project
+            (select the Project > New... menu), or
+       b. open an existing project
+            (select the Project > Open... menu)
+
+     and then either
+
+       a. create a new file
+            (select the File > New menu), or
+       b. open an existing file
+            (click on it in the tree at left).
