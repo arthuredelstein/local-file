@@ -37,8 +37,18 @@
         (project-dir (namespace-to-source *ns*))
         (find-uncle-file (File. ".") "project.clj"))))
 
-(defn slurp* [f & opts]
-  (apply slurp (File. (project-dir) f) opts))
+(defn file*
+  "Takes a relative path and returns an absolute path rooted
+   in the project-dir"
+  [rel-path]
+  (File. (project-dir) rel-path))
 
-(defn spit* [f content & opts]
-  (apply spit (File. (project-dir) f) content opts))
+(defn slurp*
+  "Read a file f, relative to the project dir."
+  [f & opts]
+  (apply slurp (file* f) opts))
+
+(defn spit*
+  "Write a file f, relative to the project dir."
+  [f content & opts]
+  (apply spit (file* f) content opts))
