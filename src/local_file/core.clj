@@ -4,14 +4,16 @@
 (ns local-file.core
   (:import (java.io File)))
 
-(defn namespace-to-source [ns]
+(defn namespace-to-source
   "Converts the namespace object to a source (.clj) file path."
+  [ns]
   (when-let [name (try (-> ns ns-name str) (catch Exception e))]
     (let [tokens (.split name "\\.")]
-      (str (apply str (interpose "/" (map munge tokens))) ".clj"))))
+      (str (apply str (interpose File/separator (map munge tokens))) ".clj"))))
 
-(defn find-uncle-file [f uncle]
+(defn find-uncle-file
   "Finds an ancestor directory of file f containing a file uncle."
+  [f uncle]
   (let [f (if (string? f) (File. f) f)
         uncle (if (string? uncle) uncle (.getPath uncle))
         d0 (if (.isDirectory f) f (.getParentFile f))]
@@ -38,7 +40,7 @@
         (find-uncle-file (File. ".") "project.clj"))))
 
 (defn file*
-  "Takes a relative path and returns an absolute path rooted
+  "Takes a relative path and returns a file rooted
    in the project-dir"
   [rel-path]
   (File. (project-dir) rel-path))
