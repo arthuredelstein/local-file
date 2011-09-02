@@ -23,17 +23,21 @@
           (.getAbsolutePath dir)
           (recur (.getParentFile dir)))))))
 
+(defn find-resource
+  [file]
+  (loop [cl (.. Thread currentThread getContextClassLoader)]
+    (when cl
+      (if-let [url (.findResource cl file)]
+        url
+        (recur (.getParent cl))))))
+
 (defn project-dir
   "Returns the absolute file path of the parent of the src directory
    enclosing the current source file (or namespace's) package dirs."
   ([file]
-    (let [rel file]
-      (loop [cl (.. Thread currentThread getContextClassLoader)]
-        (when cl
-          (if-let [url (.findResource cl rel)]
-            (-> (.replace (.getFile url) rel "")
-                File. .getParentFile .getAbsolutePath)
-            (recur (.getParent cl)))))))
+    (when-let [url (find-resource file)]
+      (-> (.replace (.getFile url) file "")
+          File. .getParentFile .getAbsolutePath)))
   ([]
     (or (project-dir *file*)
         (project-dir (namespace-to-source *ns*))
