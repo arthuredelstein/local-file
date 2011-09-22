@@ -33,11 +33,16 @@
 
 (defn project-dir
   "Returns the absolute file path of the parent of the src directory
-   enclosing the current source file (or namespace's) package dirs."
+   enclosing the current source file (or namespace's) package dirs.
+   If running from a jar, returns the enclosing directory."
   ([file]
     (when-let [url (find-resource file)]
-      (-> (.replace (.getFile url) file "")
-          File. .getParentFile .getAbsolutePath)))
+      (let [stub (.replace (.getFile url) file "")]
+        (->
+          (if (.endsWith stub ".jar!/")
+            (.substring stub 5 (- (.length stub) 2))
+            stub)
+          File. .getParentFile .getAbsolutePath))))
   ([]
     (or (project-dir *file*)
         (project-dir (namespace-to-source *ns*))
